@@ -1,0 +1,49 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 953b1b22afb763c41a6856ec7823ca18, type: 3}
+  m_Name: MyDataManager
+  m_EditorClassIdentifier: 
+  questList:
+  - iconSprite: {fileID: 21300000, guid: 1835d629e7daa422a86dd60cc3311077, type: 3}
+    title: Canvas Interaction
+    description: 'Hint: find out information about the simulation by pressing the
+      information button. use the index button to interact with the player'
+    isDone: 0
+    doneMessage: step 1 is finished
+    score: 10
+  - iconSprite: {fileID: 21300000, guid: d61dd157869a640ea8e2f0248c64d580, type: 3}
+    title: Find the ladder
+    description: 'Hint: Go into the next room to climb the stairs. use the grip button
+      to open the door'
+    isDone: 0
+    doneMessage: Step 2 is finished
+    score: 10
+  - iconSprite: {fileID: 21300000, guid: 1835d629e7daa422a86dd60cc3311077, type: 3}
+    title: Climb the ladder to go up to the second floor
+    description: 'Hint: Point your hand at the ladder then use the grip button to
+      hold and climb the ladder'
+    isDone: 0
+    doneMessage: Step 3 is finished
+    score: 10
+  - iconSprite: {fileID: 21300000, guid: 5fd33beab7f90471288451112f2440d7, type: 3}
+    title: Press the siren button
+    description: 'Hint: press the button to turn on the siren'
+    isDone: 0
+    doneMessage: Step 4 is finished
+    score: 10
+  - iconSprite: {fileID: 21300000, guid: a0a17171a678941fb94f58563fd684d6, type: 3}
+    title: complete the post test
+    description: Now you can complete post test
+    isDone: 0
+    doneMessage: You have been finished this simulation
+    score: 10
+  playerScore: 0
