@@ -44,6 +44,7 @@ public class MultiplayerManager : MonoBehaviour, INetworkRunnerCallbacks
 
     [Header("Connection Event")]
     public UnityEvent OnPlayerConnectToServer;
+    public UnityEvent OnPlayerOnShutdownFromServer;
 
     private void Awake()
     {
@@ -59,6 +60,11 @@ public class MultiplayerManager : MonoBehaviour, INetworkRunnerCallbacks
     void Start()
     {
         // PlayGame();
+    }
+
+    private void Update()
+    {
+        if (Input.GetKey(KeyCode.Escape) && instanceRunner) instanceRunner.Shutdown();
     }
 
     public void InputPlayerName(string name)
@@ -181,7 +187,10 @@ public class MultiplayerManager : MonoBehaviour, INetworkRunnerCallbacks
         {
             Destroy(instanceRunner);
             instanceRunner = null;
+            networkPlayerController = null;
         }
+
+        OnPlayerOnShutdownFromServer.Invoke();
     }
 
     public void OnConnectedToServer(NetworkRunner runner)
