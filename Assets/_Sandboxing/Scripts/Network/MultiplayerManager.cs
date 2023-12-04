@@ -6,7 +6,6 @@ using Fusion;
 using System;
 using System.Threading.Tasks;
 using UnityEngine.Events;
-using UnityEngine.SceneManagement;
 
 public class MultiplayerManager : MonoBehaviour, INetworkRunnerCallbacks
 {
@@ -171,7 +170,7 @@ public class MultiplayerManager : MonoBehaviour, INetworkRunnerCallbacks
 
     public void OnPlayerJoined(NetworkRunner runner, PlayerRef player)
     {
-
+        Debug.Log("there is player join room");
     }
 
     public void OnPlayerLeft(NetworkRunner runner, PlayerRef player)
