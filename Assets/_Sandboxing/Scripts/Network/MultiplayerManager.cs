@@ -5,26 +5,56 @@ using Fusion.Sockets;
 using Fusion;
 using System;
 using System.Threading.Tasks;
+using UnityEngine.Events;
+using UnityEngine.SceneManagement;
 
 public class MultiplayerManager : MonoBehaviour, INetworkRunnerCallbacks
 {
+    private static MultiplayerManager Instance;
+
     [Header("Player data")]
-    [SerializeField, ReadOnly] private string playerName;
-    [SerializeField, ReadOnly] private string roomName;
+
+#if UNITY_EDITOR
+    [ReadOnly]
+#endif
+    [SerializeField]
+    private string playerName;
+
+#if UNITY_EDITOR
+    [ReadOnly]
+#endif
+    [SerializeField]
+    private string roomName;
 
     [Space]
     public NetworkRunner instanceRunner;
-    public NetworkObject playerInstance;
+    public NetworkObject networkPlayerController;
+    PlayerInputHandler playerInputHandler;
 
     [Header("Fusion Components")]
     [SerializeField] private NetworkRunner runnerPrefab;
     [SerializeField] private NetworkObject _playerPrefab;
     [SerializeField] private Transform defaultPossition;
+    private byte[] _connectionToken;
 
 
-    [Header("UI Game Objects")]
-    public GameObject Canvas_playerName;
-    public GameObject Canvas_RoomName;
+    // [Header("UI Game Objects")]
+    // public GameObject Canvas_playerName;
+    // public GameObject Canvas_RoomName;
+
+    [Header("Connection Event")]
+    public UnityEvent OnPlayerConnectToServer;
+
+    private void Awake()
+    {
+        if (Instance == null)
+        {
+            Instance = this;
+
+            if (_connectionToken == null)
+                Instance._connectionToken = ConnectionTokenUtils.NewToken();
+        }
+    }
 
     void Start()
     {
@@ -37,8 +67,8 @@ public class MultiplayerManager : MonoBehaviour, INetworkRunnerCallbacks
 
         playerName = name;
 
-        Canvas_playerName.SetActive(false);
-        Canvas_RoomName.SetActive(true);
+        // Canvas_playerName.SetActive(false);
+        // Canvas_RoomName.SetActive(true);
     }
 
     public void InputRoomName(string name)
@@ -47,11 +77,17 @@ public class MultiplayerManager : MonoBehaviour, INetworkRunnerCallbacks
 
         roomName = name;
 
-        Canvas_RoomName.SetActive(false);
+        // Canvas_RoomName.SetActive(false);
     }
 
     public void PlayGame()
     {
+        if (string.IsNullOrEmpty(roomName) || string.IsNullOrEmpty(playerName))
+        {
+            Debug.LogWarning($"can't enter the room, please fill the room name");
+            return;
+        }
+
         StartGame();
     }
 
@@ -61,11 +97,12 @@ public class MultiplayerManager : MonoBehaviour, INetworkRunnerCallbacks
         {
             instanceRunner = GetRunner("Runner");
 
-            var result = await StartSimulation(instanceRunner, GameMode.Shared, roomName);
+            // var result = await StartSimulation(instanceRunner, GameMode.AutoHostOrClient, roomName, , NetAddress.Any());
+            var result = await StartSimulation(instanceRunner, GameMode.Shared, roomName, _connectionToken, NetAddress.Any());
 
             if (result.Ok)
             {
-                Debug.Log($"Has been entered {instanceRunner.SessionInfo.Name} room");
+                Debug.Log($"Network-Runner has been instantiated");
             }
             else
             {
@@ -75,15 +112,17 @@ public class MultiplayerManager : MonoBehaviour, INetworkRunnerCallbacks
         }
     }
 
-    Task<StartGameResult> StartSimulation(NetworkRunner runner, GameMode gameMode, string room, HostMigrationToken migrationToken = null, Action<NetworkRunner> migrationResume = null)
+    Task<StartGameResult> StartSimulation(NetworkRunner runner, GameMode gameMode, string room, byte[] connectionToken, NetAddress address, HostMigrationToken migrationToken = null, Action<NetworkRunner> initialized = null)
     {
         return runner.StartGame(new StartGameArgs()
         {
             GameMode = gameMode,
+            Address = address,
             SessionName = room,
             SceneManager = runner.gameObject.AddComponent<NetworkSceneManagerDefault>(),
+            Initialized = initialized,
             HostMigrationToken = migrationToken,
-            HostMigrationResume = migrationResume,
+            ConnectionToken = connectionToken
         });
     }
 
@@ -97,58 +136,85 @@ public class MultiplayerManager : MonoBehaviour, INetworkRunnerCallbacks
         return runner;
     }
 
-    public void OnPlayerJoined(NetworkRunner runner, PlayerRef player)
+    int GetPlayerToken(NetworkRunner runner, PlayerRef player)
     {
-        Debug.Log("Player joined room");
-    }
+        if (runner.LocalPlayer == player)
+        {
+            return ConnectionTokenUtils.HashToken(_connectionToken);
+        }
+        else
+        {
+            var token = runner.GetPlayerConnectionToken(player);
 
-    public void OnPlayerLeft(NetworkRunner runner, PlayerRef player)
-    {
-        Debug.Log("Player left room");
+            if (token != null)
+            {
+                return ConnectionTokenUtils.HashToken(token);
+            }
+        }
+
+        return 0; // invalid
     }
 
     public void OnInput(NetworkRunner runner, NetworkInput input)
     {
+        if (playerInputHandler != null)
+        {
+            input.Set(playerInputHandler.GetNetworkInput());
+        }
+    }
 
+    public void OnPlayerJoined(NetworkRunner runner, PlayerRef player)
+    {
+
+    }
+
+    public void OnPlayerLeft(NetworkRunner runner, PlayerRef player)
+    {
+        Debug.Log("there is player left room");
     }
 
     public void OnShutdown(NetworkRunner runner, ShutdownReason shutdownReason)
     {
-        Debug.Log($"player exit from room: {runner.SessionInfo.Name}");
+        Debug.Log($"OnShutdown");
+
+        if (Application.isPlaying && shutdownReason != ShutdownReason.HostMigration)
+        {
+            Destroy(instanceRunner);
+            instanceRunner = null;
+        }
     }
 
     public void OnConnectedToServer(NetworkRunner runner)
     {
         Debug.Log("Player connected to server");
+        OnPlayerConnectToServer.Invoke();
 
         if (runner.GameMode == GameMode.Shared)
         {
-            Debug.Log($"{Time.time} Shared Mode - Spawning Player");
             StartCoroutine(InstantiatePlayer(runner, runner.LocalPlayer));
         }
     }
 
     IEnumerator InstantiatePlayer(NetworkRunner runner, PlayerRef playerref)
     {
-        Debug.Log("try to spawn player...");
+        Debug.Log($"{Time.time} try to spawn player...");
 
         yield return new WaitUntil(() => defaultPossition != null);
 
-        var pos = UnityEngine.Random.insideUnitSphere * 5 + defaultPossition.position;
-        pos.y = 1f;
+        var _playerToken = GetPlayerToken(runner, playerref);
 
-        playerInstance = runner.Spawn(_playerPrefab, pos, defaultPossition.rotation, playerref, InitNetworkState);
+        networkPlayerController = runner.Spawn(_playerPrefab, Utils.GetRandomSpawnPoint(defaultPossition), defaultPossition.rotation, playerref, InitNetworkState);
 
         void InitNetworkState(NetworkRunner runner, NetworkObject obj)
         {
-            // var networkPlayer = obj.GetBehaviour<NetworkPlayerManager>();
-            // networkPlayer.Player = playerref;
-            // networkPlayer.Name = playerName;
+            var networkPlayer = obj.GetBehaviour<NetworkPlayerControllerPC>();
+            networkPlayer.RPC_SetNickname(playerName);
+            networkPlayer.playerToken = _playerToken;
+
+            playerInputHandler = networkPlayer.GetComponent<PlayerInputHandler>();
 
             runner.SetPlayerObject(playerref, obj);
             runner.SetPlayerAlwaysInterested(playerref, obj, true);
-
-            Debug.Log("player has been spawned!!!");
         }
     }
 

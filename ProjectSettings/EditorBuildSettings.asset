@@ -5,9 +5,15 @@ EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Scenes:
-  - enabled: 1
-    path: Assets/Scenes/SampleScene.unity
+  - enabled: 0
+    path: Assets/_Sandboxing/Scenes/SampleScene.unity
     guid: 99c9720ab356a0642a771bea13969a05
+  - enabled: 0
+    path: Assets/_Sandboxing/Scenes/Multiplayer.unity
+    guid: 3b726103136d4864ea520ce467a3d02e
+  - enabled: 1
+    path: Assets/_Sandboxing/Scenes/Testing-multiplayer-pc.unity
+    guid: 61ddd4abc8ad8de47861076e287709c7
   m_configObjects:
     Unity.XR.Oculus.Settings: {fileID: 11400000, guid: 0bc77e8ef44b8064fa8909a5b2b3f410,
       type: 2}

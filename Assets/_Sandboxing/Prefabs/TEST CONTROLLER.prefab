@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 4584923243661328687}
   - component: {fileID: 3409823136919752497}
   m_Layer: 0
-  m_Name: PLAYER CHARACTER (MULTIPLAYER)
+  m_Name: TEST CONTROLLER
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
