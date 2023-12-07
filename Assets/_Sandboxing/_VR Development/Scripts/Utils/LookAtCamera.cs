@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class LookAtCanvas : MonoBehaviour
+public class LookAtCamera : MonoBehaviour
 {
     [SerializeField] private GameObject mainCamera;
 

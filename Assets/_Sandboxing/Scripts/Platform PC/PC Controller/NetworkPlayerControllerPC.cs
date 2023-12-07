@@ -13,7 +13,7 @@ public class NetworkPlayerControllerPC : NetworkBehaviour
     public TextMeshProUGUI playerNicknameUI;
     public Camera localCamera;
     public NetworkCharacterControllerPrototypeCustom networkCharacterControllerCustom;
-    public LookAtCanvas canvasName;
+    public LookAtCamera canvasName;
 
     [Networked(OnChanged = nameof(OnNicknameChanged))]
     public NetworkString<_64> playerNickname { get; set; }

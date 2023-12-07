@@ -11,9 +11,12 @@ EditorBuildSettings:
   - enabled: 0
     path: Assets/_Sandboxing/Scenes/Multiplayer.unity
     guid: 3b726103136d4864ea520ce467a3d02e
-  - enabled: 1
+  - enabled: 0
     path: Assets/_Sandboxing/Scenes/Testing-multiplayer-pc.unity
     guid: 61ddd4abc8ad8de47861076e287709c7
+  - enabled: 1
+    path: Assets/_Sandboxing/_VR Development/Scenes/Multiplayer Starter Scene.unity
+    guid: bac9c64342480294bb5191b4c78ace76
   m_configObjects:
     Unity.XR.Oculus.Settings: {fileID: 11400000, guid: 0bc77e8ef44b8064fa8909a5b2b3f410,
       type: 2}
