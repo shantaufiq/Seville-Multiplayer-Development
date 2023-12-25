@@ -25,9 +25,9 @@ TagManager:
   - 
   - 
   - 
-  - 
+  - HideFromCamera
   - LocalPlayerCharacter
-  - 
+  - InvisiblePart
   - 
   - 
   - 

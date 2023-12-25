@@ -1463,7 +1463,7 @@
                 {
                     "name": "",
                     "id": "eff94381-b40b-44a0-b96a-6db5e5c42180",
-                    "path": "<XRController>{RightHand}/primaryTouch",
+                    "path": "<XRController>{RightHand}/primaryButton",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
@@ -1474,7 +1474,7 @@
                 {
                     "name": "",
                     "id": "ebfa8363-367b-46b8-b1db-77f203a13be4",
-                    "path": "<XRController>{RightHand}/secondaryTouch",
+                    "path": "<XRController>{RightHand}/secondaryButton",
                     "interactions": "",
                     "processors": "",
                     "groups": "",

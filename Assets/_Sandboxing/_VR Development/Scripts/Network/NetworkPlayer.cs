@@ -2,6 +2,7 @@ using TMPro;
 using UnityEngine;
 using Fusion;
 using System.Collections;
+using System.Collections.Generic;
 
 namespace Seville.Multiplayer.Launcer
 {
@@ -13,16 +14,18 @@ namespace Seville.Multiplayer.Launcer
         public NetworkString<_64> playerNickname { get; set; }
 
         [Space]
-        // public LocalRigSpawner rigSpawner;
-        [SerializeField] private Transform xrOrigin;
-        [SerializeField] PlayerInputHandler _XRIRig;
+        [SerializeField] private PlayerInputHandler _XRIRigPrefab;
+        Transform xrOrigin;
 
         [Space]
-        [Header("visual Models")]
+        [Header("Visual Components")]
         [SerializeField] Transform _head;
-        [SerializeField] GameObject _headVisuals;
         public Hand _leftHand;
         public Hand _rightHand;
+        public List<GameObject> InvisibleOwnerPart;
+        public GameObject localCamera;
+        public LookAtCamera canvasCamFocus;
+        [SerializeField] private CanvasPlayerController canvasPlayer;
 
         static void OnNicknameChanged(Changed<NetworkPlayer> changed)
         {
@@ -48,23 +51,35 @@ namespace Seville.Multiplayer.Launcer
                 // set the layer of the local players character
                 // Utils.SetRenderLayerChildren(localPlayerCharacter, LayerMask.NameToLayer("LocalPlayerCharacter"));
 
-                // rigSpawner.SpawnPlayer(this.gameObject.transform);
                 NetworkObject _networkedParent = GetComponent<NetworkObject>();
 
-                var rig = Instantiate(_XRIRig);
+                var rig = Instantiate(_XRIRigPrefab);
                 rig.transform.localPosition = transform.localPosition;
                 rig.transform.localRotation = transform.localRotation;
                 rig.networkedParent = _networkedParent;
                 rig.relativeTo = transform;
                 xrOrigin = rig.transform;
+                localCamera = rig.localCamera;
+                canvasCamFocus.SetCamera(rig.localCamera);
+
+                // Utils.SetRenderLayerChildren(this.transform, LayerMask.NameToLayer("LocalPlayerCharacter"));
+                Utils.SetRenderLayerChildren(rig.transform.GetChild(1), LayerMask.NameToLayer("LocalPlayerCharacter"));
+
+                foreach (var part in InvisibleOwnerPart)
+                {
+                    part.layer = LayerMask.NameToLayer("InvisiblePart");
+                }
 
                 Debug.Log($"Local player '{playerNickname}' has been spawned");
                 this.gameObject.name = $"Local player: {playerNickname}";
+
             }
             else
             {
                 Debug.Log("Spawned remote player");
                 this.gameObject.name = $"Remote player: {playerNickname}";
+
+                StartCoroutine(FindCameraWithLayer("LocalPlayerCharacter"));
             }
         }
 
@@ -86,8 +101,37 @@ namespace Seville.Multiplayer.Launcer
                 _head.localPosition = input.HeadLocalPosition;
                 _head.localRotation = input.HeadLocalRotation;
 
+                if (Object.HasInputAuthority)
+                    canvasPlayer.UpdateInput(input.emojiData);
+
                 Runner.AddPlayerAreaOfInterest(Runner.LocalPlayer, _head.position, 1f);
             }
+        }
+
+        IEnumerator FindCameraWithLayer(string layerName)
+        {
+            yield return new WaitUntil(() => localCamera == null);
+
+            int layer = LayerMask.NameToLayer(layerName);
+            GameObject target = null;
+
+            while (target == null)
+            {
+                GameObject[] gameObjects = GameObject.FindGameObjectsWithTag("MainCamera");
+                foreach (GameObject obj in gameObjects)
+                {
+                    if (obj.layer == layer)
+                    {
+                        target = obj;
+                        break;
+                    }
+                }
+
+                yield return new WaitForSeconds(1.0f);
+            }
+
+            canvasCamFocus.SetCamera(target);
+            // Debug.Log("Finded local-camera: " + target.name);
         }
 
         public void PlayerLeft(PlayerRef player)

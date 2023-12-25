@@ -1,20 +1,23 @@
 using UnityEngine;
 
-public class LookAtCamera : MonoBehaviour
+namespace Seville.Multiplayer.Launcer
 {
-    [SerializeField] private GameObject mainCamera;
-
-    public void SetCamera(GameObject cam)
+    public class LookAtCamera : MonoBehaviour
     {
-        mainCamera = cam;
-    }
+        [SerializeField] private GameObject mainCamera;
 
-    private void Update()
-    {
-        if (mainCamera != null)
+        public void SetCamera(GameObject cam)
         {
-            transform.LookAt(mainCamera.transform);
-            transform.rotation *= Quaternion.LookRotation(Vector3.back);
+            mainCamera = cam;
+        }
+
+        private void Update()
+        {
+            if (mainCamera != null)
+            {
+                transform.LookAt(mainCamera.transform);
+                transform.rotation *= Quaternion.LookRotation(Vector3.back);
+            }
         }
     }
 }

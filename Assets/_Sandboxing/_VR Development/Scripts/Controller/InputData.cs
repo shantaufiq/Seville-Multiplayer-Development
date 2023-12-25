@@ -8,6 +8,21 @@ namespace Seville.Multiplayer.Launcer
     {
         public Vector3 LocalPosition;
         public Quaternion LocalRotation;
+
+        public float pitchValue;
+        public float gripValue;
+    }
+
+    public struct InputDataEmoji : INetworkStruct
+    {
+        public int emojiIndex;
+        public bool OnEmojiSelected;
+
+        public void ResetEmojiData()
+        {
+            emojiIndex = -1;
+            OnEmojiSelected = false;
+        }
     }
 
     public struct InputData : INetworkInput
@@ -18,5 +33,13 @@ namespace Seville.Multiplayer.Launcer
 
         public InputDataController Left;
         public InputDataController Right;
+
+        public InputDataEmoji emojiData;
+
+        public void ResetEmojiData()
+        {
+            emojiData.emojiIndex = -1;
+            emojiData.OnEmojiSelected = false;
+        }
     }
 }

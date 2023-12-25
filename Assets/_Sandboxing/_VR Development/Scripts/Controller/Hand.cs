@@ -7,6 +7,8 @@ namespace Seville.Multiplayer.Launcer
     {
         public LocalControllerXRI LocalController { get; set; }
 
+        public Animator handAnimator;
+
         public void SetLocalController(LocalControllerXRI other)
         {
             LocalController = other;
@@ -18,9 +20,18 @@ namespace Seville.Multiplayer.Launcer
             }
         }
 
+        // update value from NetworkPlayer
         public void UpdateInput(InputDataController input)
         {
             UpdatePose(input.LocalPosition, input.LocalRotation);
+
+            SetAnimation(input.pitchValue, input.gripValue);
+        }
+
+        void SetAnimation(float pitch, float grip)
+        {
+            handAnimator.SetFloat("Trigger", pitch);
+            handAnimator.SetFloat("Grip", grip);
         }
 
         void UpdatePose(Vector3 localPosition, Quaternion localRotation)

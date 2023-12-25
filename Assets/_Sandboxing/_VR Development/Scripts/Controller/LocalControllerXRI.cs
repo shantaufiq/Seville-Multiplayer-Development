@@ -1,7 +1,6 @@
-
+using UnityEngine.InputSystem;
 using UnityEngine.XR.Interaction.Toolkit;
 using UnityEngine;
-using UnityEngine.InputSystem;
 
 namespace Seville.Multiplayer.Launcer
 {
@@ -31,8 +30,9 @@ namespace Seville.Multiplayer.Launcer
         {
             container.LocalPosition = GetLocalPosition();
             container.LocalRotation = GetLocalRotation();
-            // container.LocalPosition = transform.position;
-            // container.LocalRotation = transform.rotation;
+
+            container.pitchValue = activateActionValue.action.ReadValue<float>();
+            container.gripValue = selectActionValue.action.ReadValue<float>();
         }
     }
 }
