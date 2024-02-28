@@ -3,11 +3,27 @@ using UnityEngine;
 
 namespace Seville.Multiplayer.Launcer
 {
+
+    [RequireComponent(typeof(NetworkTransform))]
+    [OrderAfter(typeof(NetworkTransform), typeof(NetworkRigidbody))]
     public class Hand : NetworkBehaviour
     {
+        public NetworkTransform networkTransform;
+
+        NetworkPlayer rig;
         public LocalControllerXRI LocalController { get; set; }
 
         public Animator handAnimator;
+
+        public bool IsLocalNetworkRig => rig.IsLocalNetworkRig;
+
+        public LocalControllerXRI LocalHardwareHand => IsLocalNetworkRig ? LocalController : null;
+
+        private void Awake()
+        {
+            rig = GetComponentInParent<NetworkPlayer>();
+            // networkTransform = GetComponent<NetworkTransform>();
+        }
 
         public void SetLocalController(LocalControllerXRI other)
         {

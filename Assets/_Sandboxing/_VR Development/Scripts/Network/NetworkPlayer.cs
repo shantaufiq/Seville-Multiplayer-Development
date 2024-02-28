@@ -6,6 +6,7 @@ using System.Collections.Generic;
 
 namespace Seville.Multiplayer.Launcer
 {
+    [RequireComponent(typeof(NetworkTransform))]
     public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
     {
         public TextMeshProUGUI playerNicknameUI;
@@ -26,6 +27,9 @@ namespace Seville.Multiplayer.Launcer
         public GameObject localCamera;
         public LookAtCamera canvasCamFocus;
         [SerializeField] private CanvasPlayerController canvasPlayer;
+
+        // As we are in shared topology, having the StateAuthority means we are the local user
+        public virtual bool IsLocalNetworkRig => Object && Object.HasStateAuthority;
 
         static void OnNicknameChanged(Changed<NetworkPlayer> changed)
         {
